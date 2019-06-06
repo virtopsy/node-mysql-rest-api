@@ -1,4 +1,4 @@
-import mysql from "mysql";
+import mysql from "mysql2";
 
 const pool = mysql.createPool({
             connectionLimit : 10,
@@ -13,18 +13,31 @@ const pool = mysql.createPool({
 function executeQuery(sql, callback) {
     pool.getConnection((err,connection) => {
         if(err) {
+            console.log('error get connection');
             return callback(err, null);
-        } else {
-            if(connection) {
-                connection.query(sql, function (error, results, fields) {
-                connection.release();
-                if (error) {
-                    return callback(error, null);
-                } 
-                return callback(null, results);
-                });
-            }
         }
+            console.log('connection was get');
+        console.log('sql.sql ->' + sql.sql);
+        console.log('sql.par ->' + sql.par);
+            // connection.query(sql, function (error, results, fields) {
+            connection.execute(sql.sql, sql.par, function (error, results, fields) {
+                if (error) {
+                    connection.rollback(function() {
+                        throw error;
+                        // console.log('connection.query -> ' + error);
+                    });
+                }
+                connection.commit(function(err) {
+                    if (err) {
+                         rollback(function() {
+                             throw err;
+                         });
+                    }
+                    console.log('Transaction Completed Successfully.');
+                    connection.release();
+                });
+                return callback(null, results);
+            });
     });
 }
 
@@ -32,7 +45,7 @@ function query(sql, callback) {
     executeQuery(sql,function(err, data) {
         if(err) {
             return callback(err);
-        }       
+        }
         callback(null, data);
     });
 }

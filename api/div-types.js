@@ -1,29 +1,28 @@
 import express from "express";
 import db from "../db/database";
-import Product from "../domain/product";
+import DivType from "../domain/div-type";
 
 const router = express.Router();
 
 router.get("/", (req, res, next) => {
 
-    db.query(Product.getAllProductSQL(), (err, data)=> {
+    db.query(DivType.getAllSQL(), (err, data)=> {
         if(!err) {
             res.status(200).json({
-                message:"Products listed.",
+                message:"DivType listed.",
                 productId:data
             });
         }
-    });    
+    });
 });
 
 router.post("/add", (req, res, next) => {
-    console.log("req.body.prd_price "+req.body.prd_price);
+    console.log("req.body.prd_price "+req.body.name);
     //read product information from request
-    let product = new Product(req.body.prd_name, req.body.prd_price);
-
-    db.query(product.getAddProductSQL(), (err, data)=> {
+    let divtype = new DivType(req.body.code, req.body.name);
+    db.query(divtype.getAddSQL(), (err, data)=> {
         res.status(200).json({
-            message:"Product added.",
+            message:"DivType added.",
             productId: data
         });
     });
@@ -32,41 +31,41 @@ router.post("/add", (req, res, next) => {
 router.get("/:productId", (req, res, next) => {
     let pid = req.params.productId;
 
-    db.query(Product.getProductByIdSQL(pid), (err, data)=> {
+    db.query(DivType.getByIdSQL(pid), (err, data)=> {
         if(!err) {
             if(data && data.length > 0) {
-                
+
                 res.status(200).json({
-                    message:"Product found.",
+                    message:"DivType found.",
                     product: data
                 });
             } else {
                 res.status(200).json({
-                    message:"Product Not found."
+                    message:"DivType Not found."
                 });
             }
-        } 
-    });    
+        }
+    });
 });
 
 router.post("/delete", (req, res, next) => {
 
     var pid = req.body.productId;
 
-    db.query(Product.deleteProductByIdSQL(pid), (err, data)=> {
+    db.query(DivType.deleteByIdSQL(pid), (err, data)=> {
         if(!err) {
             if(data && data.affectedRows > 0) {
                 res.status(200).json({
-                    message:`Product deleted with id = ${pid}.`,
+                    message:`DivType deleted with id = ${pid}.`,
                     affectedRows: data.affectedRows
                 });
             } else {
                 res.status(200).json({
-                    message:"Product Not found."
+                    message:"DivType Not found."
                 });
             }
-        } 
-    });   
+        }
+    });
 });
 
 module.exports = router;

@@ -2,8 +2,7 @@ import express from "express";
 import bodyparser from "body-parser";
 import cors from "cors";
 
-import products from "./api/products";
-import orders from "./api/orders";
+import divtypes from "./api/div-types";
 
 const app = express();
 
@@ -11,8 +10,8 @@ app.use(cors());
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended:false}));
 
-app.use("/products",products);
-app.use("/orders",orders);
+
+app.use("/div-types",divtypes);
 
 //if we are here then the specified request is not found
 app.use((req,res,next)=> {

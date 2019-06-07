@@ -13,6 +13,7 @@ class DivType {
                                 [`'${this.code}'`,`'${this.name}'`]);
         return result;
     }
+    
     static getByIdSQL(id) {
         let result = new SqlPar (`SELECT * FROM division_type WHERE ID = ? ;`,
                                 [`${id}`]);

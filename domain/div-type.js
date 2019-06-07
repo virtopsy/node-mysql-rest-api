@@ -13,19 +13,16 @@ class DivType {
                                 [`'${this.code}'`,`'${this.name}'`]);
         return result;
     }
-
     static getByIdSQL(id) {
         let result = new SqlPar (`SELECT * FROM division_type WHERE ID = ? ;`,
                                 [`${id}`]);
         return result;
     }
-
     static deleteByIdSQL(id) {
         let result = new SqlPar (`DELETE FROM division_type WHERE ID = ? ;`,
                                  [`${id}`] );
         return result;
     }
-
     static getAllSQL() {
         let sql = `SELECT * FROM division_type`;
         let result = new SqlPar (`SELECT * FROM division_type;`,

@@ -11,7 +11,7 @@ app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended:false}));
 
 
-app.use("/div-types",divtypes);
+app.use("/dict/sql/div-type",divtypes);
 
 //if we are here then the specified request is not found
 app.use((req,res,next)=> {

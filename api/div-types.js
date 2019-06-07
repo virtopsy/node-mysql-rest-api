@@ -9,8 +9,8 @@ router.get("/", (req, res, next) => {
     db.query(DivType.getAllSQL(), (err, data)=> {
         if(!err) {
             res.status(200).json({
-                message:"DivType listed.",
-                productId:data
+                message:"DivType found.",
+                data:data
             });
         }
     });
@@ -23,7 +23,7 @@ router.post("/add", (req, res, next) => {
     db.query(divtype.getAddSQL(), (err, data)=> {
         res.status(200).json({
             message:"DivType added.",
-            productId: data
+            data: data
         });
     });
 });
@@ -37,7 +37,7 @@ router.get("/:productId", (req, res, next) => {
 
                 res.status(200).json({
                     message:"DivType found.",
-                    product: data
+                    data: data
                 });
             } else {
                 res.status(200).json({

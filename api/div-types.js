@@ -5,12 +5,15 @@ import DivType from "../domain/div-type";
 const router = express.Router();
 
 router.get("/", (req, res, next) => {
-
-    db.query(DivType.getAllSQL(), (err, data)=> {
+    db.query(DivType.getAllSQL(req.query.pageSize, req.query.pageNo), (err, data)=> {
         if(!err) {
             res.status(200).json({
-                message:"DivType found.",
-                data:data
+                data: data[0], response_info: data[1]
+
+            });
+        } else {
+            res.status(200).json({
+                err: err
             });
         }
     });
@@ -22,22 +25,19 @@ router.post("/add", (req, res, next) => {
     let divtype = new DivType(req.body.code, req.body.name);
     db.query(divtype.getAddSQL(), (err, data)=> {
         res.status(200).json({
-            message:"DivType added.",
-            data: data
+            data: data[0]
         });
     });
 });
 
 router.get("/:productId", (req, res, next) => {
     let pid = req.params.productId;
-
     db.query(DivType.getByIdSQL(pid), (err, data)=> {
         if(!err) {
             if(data && data.length > 0) {
 
                 res.status(200).json({
-                    message:"DivType found.",
-                    data: data
+                    data: data[0]
                 });
             } else {
                 res.status(200).json({

@@ -11,32 +11,36 @@ const pool = mysql.createPool({
     multipleStatements: true
 });
 
+
 function executeQuery(sql, callback) {
     pool.getConnection((err,connection) => {
         if(err) {
             console.log('error get connection');
             return callback(err, null);
         }
-        console.log('connection was get');
-        console.log('sql.sql ->' + sql.sql);
-        console.log('sql.par ->' + sql.par);
+        // console.log('connection was get');
+        console.log('sql.sql (database.js)->' + sql.sql);
+        console.log('sql.par (database.js)->' + sql.par);
         // connection.execute (sql.sql, sql.par, function (error, results, fields) {
         connection.query (sql.sql, sql.par, function (error, results, fields) {
             if (error) {
+                console.log('query error (database.js)-> ' + error);
                 connection.rollback(function() {
-                    throw error;
-                    // console.log('connection.query -> ' + error);
+                    // throw error;
                 });
+                return callback(error,null);
             }
             connection.commit(function(err) {
                 if (err) {
+                    console.log('error on commit (database.js) -> ' + err);
                     rollback(function() {
-                        throw err;
+                        // throw err;
                     });
                 }
-                console.log('Transaction Completed Successfully.');
+                console.log('(database.js) Transaction Completed Successfully.');
                 connection.release();
             });
+            // console.log('no error');
             return callback(null, results);
         });
     });
@@ -45,7 +49,7 @@ function executeQuery(sql, callback) {
 function query(sql, callback) {
     executeQuery(sql,function(err, data) {
         if(err) {
-            return callback(err);
+            return callback(err, null);
         }
         callback(null, data);
     });

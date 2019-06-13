@@ -3,6 +3,7 @@ import bodyparser from "body-parser";
 import cors from "cors";
 
 import divtypes from "./api/div-types";
+import oradicts from "./api/ora-dicts";
 
 const app = express();
 
@@ -10,8 +11,9 @@ app.use(cors());
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended:false}));
 
-
-app.use("/dict/sql/div-type",divtypes);
+// divtypes
+app.use("/dict/sql/div-type",oradicts);
+app.use("/dict/ora/",oradicts);
 
 //if we are here then the specified request is not found
 app.use((req,res,next)=> {

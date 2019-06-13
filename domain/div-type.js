@@ -13,7 +13,7 @@ class DivType {
                                 [`'${this.code}'`,`'${this.name}'`]);
         return result;
     }
-    
+
     static getByIdSQL(id) {
         let result = new SqlPar (`SELECT * FROM division_type WHERE ID = ? ;`,
                                 [`${id}`]);
@@ -24,10 +24,13 @@ class DivType {
                                  [`${id}`] );
         return result;
     }
-    static getAllSQL() {
+    static getAllSQL(pageSize, pageNo) {
         let sql = `SELECT * FROM division_type`;
-        let result = new SqlPar (`SELECT * FROM division_type;`,
-            [] );
+        let result = new SqlPar (`SELECT * FROM division_type limit ? , ?;
+                                 Select count(*) as TotalCount from division_type ;`,
+            // [` ${pageSize * (pageNo -1)} , ${pageSize}'`]
+            [1 , 1]
+        );
         return result;
     }
 }

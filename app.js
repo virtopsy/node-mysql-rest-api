@@ -11,6 +11,7 @@ app.use(cors());
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended:false}));
 
+
 // divtypes
 app.use("/dict/sql/div-type",oradicts);
 app.use("/dict/ora/",oradicts);

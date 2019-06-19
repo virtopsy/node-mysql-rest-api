@@ -15,7 +15,7 @@ router.get("/", (req, res, next) => {
                WHERE 1 = 1
                ${filter}
                order by ${sortOrder}
-               OFFSET :offset ROWS FETCH NEXT :maxnumrows ROWS ONLY`;
+               OFFSET :offset ROWS FETCH NEXT :maxnumrows ROWS ONLY` ;
     let binds = [ pageSize * (pageNunber )
                  ,pageSize ];
     let options = { outFormat: oracledb.OBJECT };

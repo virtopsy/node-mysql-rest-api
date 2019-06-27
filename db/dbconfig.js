@@ -78,7 +78,7 @@ module.exports = {
 
   // For information on connection strings see:
   // https://github.com/oracle/node-oracledb/blob/master/doc/api.md#connectionstrings
-  connectString : process.env.NODE_ORACLEDB_CONNECTIONSTRING || "test6",
+  connectString : process.env.NODE_ORACLEDB_CONNECTIONSTRING || "test7",
 
   // Setting externalAuth is optional.  It defaults to false.  See:
   // https://github.com/oracle/node-oracledb/blob/master/doc/api.md#extauth

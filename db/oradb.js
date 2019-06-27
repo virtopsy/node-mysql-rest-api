@@ -1,5 +1,5 @@
 const oracledb = require('oracledb');
-const dbConfig = require('../ora-test/dbconfig.js');
+const dbConfig = require('./dbconfig.js');
 
 async function init() {
     try {

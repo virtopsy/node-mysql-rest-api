@@ -33,7 +33,7 @@
  *****************************************************************************/
 
 var oracledb = require('../node_modules/oracledb');
-var dbConfig = require('./dbconfig.js');
+var dbConfig = require('../db/dbconfig.js');
 
 // Get a non-pooled connection
 oracledb.getConnection(

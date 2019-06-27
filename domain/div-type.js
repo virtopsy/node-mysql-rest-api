@@ -1,4 +1,4 @@
-import SqlPar from "../db/sql-par";
+import SqlPar from "../api/sql-par";
 class DivType {
 
     constructor(code, name) {

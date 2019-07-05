@@ -31,7 +31,7 @@ async function init() {
     } catch (err) {
         console.error('init() error: ' + err.message);
     } finally {
-       // await closePoolAndExit();
+        // await closePoolAndExit();
         console.log('Connection pool started');
     }
 }
@@ -39,12 +39,12 @@ async function init() {
 async function querysql(sql, binds, options, callback) {
     let connection;
     try {
-        console.log('sql -> '+ sql);
-        console.log('binds ->' + binds);
+console.log('oradb.querysql sql -> '+ sql);
+console.log('oradb.querysql binds ->' + binds);
         // Get a connection from the default pool
         connection = await oracledb.getConnection();
         let result = await connection.execute(sql, binds, options);
-        console.log(result);
+console.log('oradb.querysql result->' + JSON.stringify(result));
         return callback(null, result);
     } catch (err) {
         console.error(err);
@@ -71,7 +71,7 @@ async function closePoolAndExit() {
         await oracledb.getPool().close(10);
         console.log('Pool closed');
         process.exit(0);
-    } catch(err) {
+    } catch (err) {
         console.error(err.message);
         process.exit(1);
     }
@@ -79,9 +79,9 @@ async function closePoolAndExit() {
 
 process
     .once('SIGTERM', closePoolAndExit)
-    .once('SIGINT',  closePoolAndExit);
+    .once('SIGINT', closePoolAndExit);
 
- init();
+init();
 
 module.exports = {
     querysql: querysql

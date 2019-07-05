@@ -1,9 +1,15 @@
 const queryStringParser = require('./query_string_parser.js');
 
 function getFilterObj(filter) {
-    if (!filter) { return null; };
+    if (!filter) {
+        return null;
+    }
+    ;
     let parsedFilter = queryStringParser.fromQuery(filter);
-    if (!parsedFilter.op) {return null; } ;
+    if (!parsedFilter.op) {
+        return null;
+    }
+    ;
     let condObj;
     try {
         condObj = CONDITIONS_FUNCTIONS[parsedFilter.op](parsedFilter);
@@ -39,7 +45,7 @@ function getSourceObj(objNmae) {
             throw e;
         }
     }
-    console.log(' getSourceObj.result->' + result + 'getSourceObj.->objNmae' + objNmae);
+    // console.log(' getSourceObj.result->' + result + 'getSourceObj.->objNmae' + objNmae);
     return result;
 }
 

@@ -34,6 +34,8 @@ function getFilterJSON(filter) {
 }
 
 function getSourceObj(objNmae) {
+    return objNmae;
+
     let result;
     try {
         result = SOURCENAME_FUNCTION[objNmae]();

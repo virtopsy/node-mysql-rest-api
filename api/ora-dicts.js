@@ -4,18 +4,48 @@ const oracledb = require('oracledb');
 import oradb from "../db/oradb";
 import TableDML from "../domain/table-dml";
 
-// import DivType from "../domain/div-type";
 const router = express.Router();
+
+
+router.delete("/:id", (req, res, next) => {
+    try {
+        const sqlData = TableDML.delByIdSQL(req);
+        const options = {
+            outFormat: oracledb.OBJECT,
+            autoCommit: true
+        };
+        oradb.querySql(sqlData.sql, sqlData.binds, options, (err, data) => {
+                if (!err) {
+                    res.status(200).json({
+                        success: true,
+                        data: data
+
+                    });
+                } else {
+                    console.log('ora-dict.router.delete ERROR');
+                    res.status(500).json({
+                        errormsg: err.message
+                    });
+                }
+            }
+        );
+    } catch (e) {
+        console.log('ora-dict.router.delete catch (e)');
+        res.status(500).json({
+            errormsg: e.message
+        })
+    }
+});
 
 router.get("/", (req, res, next) => {
     try {
         const sqlData = TableDML.getAllSQL(req);
         const options = {outFormat: oracledb.OBJECT};
-        oradb.querysql(sqlData.sql, sqlData.binds, options, (err, data) => {
+        oradb.querySql(sqlData.sql, sqlData.binds, options, (err, data) => {
                 if (!err) {
                     res.status(200).json({
                         success: true,
-                        data: data.rows
+                        data: data
 
                     });
                 } else {
@@ -41,7 +71,7 @@ router.put("/", (req, res, next) => {
             autoCommit: true,
             outFormat: oracledb.OBJECT
         };
-        oradb.querysql(sqlData.sql, sqlData.binds, options, (err, data) => {
+        oradb.querySql(sqlData.sql, sqlData.binds, options, (err, data) => {
                 if (!err) {
                     res.status(200).json({
                         success: true,
@@ -70,7 +100,7 @@ router.post("/", (req, res, next) => {
             autoCommit: true,
             outFormat: oracledb.OBJECT
         };
-        oradb.querysql(sqlData.sql, sqlData.binds, options, (err, data) => {
+        oradb.querySql(sqlData.sql, sqlData.binds, options, (err, data) => {
                 if (!err) {
                     res.status(200).json({
                         success: true,

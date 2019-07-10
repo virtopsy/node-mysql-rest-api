@@ -36,7 +36,7 @@ async function init() {
     }
 }
 
-async function querysql(sql, binds, options, callback) {
+async function querySql(sql, binds, options, callback) {
     let connection;
     try {
 console.log('oradb.querysql sql -> '+ sql);
@@ -84,6 +84,6 @@ process
 init();
 
 module.exports = {
-    querysql: querysql
+    querySql: querySql
 }
 

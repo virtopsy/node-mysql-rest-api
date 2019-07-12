@@ -72,12 +72,45 @@ class TableDML {
                 binds = binds.concat(values[dataObj.primaryKey[i]]);
             }
         }
-
         let sql = 'Insert into ' + dataObj.name + ' ( ' + fields.substring(1) + ') values( ' + fields.replace(/,/g, ',:').substring(1) + ') ';
         return {"sql": sql, "binds": binds};
     }
 
-    static getAllSQL(req) {
+    static getAllSqlAsPut(req) {
+        console.log('table-dml.getAllSqlAsPut body->' + JSON.stringify(req.body));
+        const pageSize = req.body.pageSize || 100;
+        const pageNunber = req.body.pageNumber || 0;
+        // sorting
+        let sortCond = '';
+        if (req.query.sortOrder) {
+            const sortOrder = (req.body.sortOrder || '').split(',');
+            for (let i = 0; i < sortOrder.length; i++) {
+                sortCond += ', ' + sortOrder[i].substring(1) + ' ' + ((sortOrder[i].charAt(0) === '-') ? 'asc' : 'desc' )
+            }
+            sortCond = ' order by ' + sortCond.substring(1);
+        }
+        const fieldsPar = req.body.fields.split(',');
+        const objName = FilterParser.getSourceObj(req.body.objName);
+        let binds = [];
+        let fields = '';
+        // lowercase fields
+        for (let i = 0; i < fieldsPar.length; i++) {
+            fields += ',' + fieldsPar[i] + ' "' + fieldsPar[i] + '" ';
+        }
+        let sql = 'SELECT ' + fields.substring(1) + ' FROM ' + objName + '  WHERE 1 = 1 ';
+        let filter = FilterParser.getFilterObjAsBody(req.body.filter || '');
+        if (filter) {
+            sql += filter.cond;
+            binds = binds.concat(filter.arg);
+        }
+        // order by ${sortOrder}
+        sql += sortCond + ' OFFSET :offset ROWS FETCH NEXT :maxnumrows ROWS ONLY';
+        binds = binds.concat([pageSize * (pageNunber )
+            , pageSize]);
+        return {"sql": sql, "binds": binds};
+    }
+
+    static getAllSql(req) {
         const pageSize = req.query.pageSize || 100;
         const pageNunber = req.query.pageNumber || 0;
         // sorting
@@ -98,7 +131,8 @@ class TableDML {
             fields += ',' + fieldsPar[i] + ' "' + fieldsPar[i] + '" ';
         }
         let sql = 'SELECT ' + fields.substring(1) + ' FROM ' + objName + '  WHERE 1 = 1 ';
-        let filter = FilterParser.getFilterObj(req.query.filter || '');
+console.log('table-dml.getAllSQL filter->' + req.query.filter);
+        let filter = FilterParser.getFilterObjAsPar(req.query.filter || '');
         if (filter) {
             sql += filter.cond;
             binds = binds.concat(filter.arg);
@@ -115,11 +149,11 @@ class TableDML {
         // binds = binds.concat(dataObjName);
         let sql = `select  lower(tc.COLUMN_NAME)    as "name"
        ,null              as "desc"
-       ,lower(tc.DATA_TYPE)      as "data_type"
-       ,tc.DATA_LENGTH    as "data_length"   
-       ,tc.DATA_PRECISION as "data_precision"
-       ,tc.DATA_SCALE     as "data_scale"    
-       ,tc.DATA_DEFAULT   as "data_default"  
+       ,lower(tc.DATA_TYPE)      as "datatype"
+       ,tc.DATA_LENGTH    as "dataLength"   
+       ,tc.DATA_PRECISION as "dataPrecision"
+       ,tc.DATA_SCALE     as "dataScale"    
+       ,tc.DATA_DEFAULT   as "dataDefault"  
   from all_tab_cols tc
         where tc.TABLE_NAME = upper(:dataObjName)`
         return {sql: sql, binds: binds};

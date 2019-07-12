@@ -1,5 +1,4 @@
 import express from "express";
-
 const oracledb = require('oracledb');
 import oradb from "../db/oradb";
 import TableDML from "../domain/table-dml";

@@ -1,15 +1,39 @@
 const queryStringParser = require('./query_string_parser.js');
 
-function getFilterObj(filter) {
-    if (!filter) {
-        return null;
+
+function getFilterObjAsBody(filter) {
+    if (!filter) {return null;};
+    let resultCondObj;
+    let condObj;
+    for (let i=0; i<filter.length; i++) {
+        let parsedFilter = filter[i];
+        if (parsedFilter.op) {
+            condObj = null;
+            try {
+                condObj = CONDITIONS_FUNCTIONS[parsedFilter.op](parsedFilter);
+            } catch (e) {
+// console.log('e.name ->' + e.name );
+                if (e.name == 'TypeError') {
+                    e.message = ('Не реализован метод ' + parsedFilter.op)
+                    throw e;
+                } else {
+                    throw e;
+                }
+            }
+            if (condObj) {
+                resultCondObj.cond += condObj;
+                resultCondObj.arg.push(condObj.arg);
+            } ;
+        };
     }
-    ;
+    return resultCondObj;
+}
+
+function getFilterObjAsPar(filter) {
+    if (!filter) {return null;};
+
     let parsedFilter = queryStringParser.fromQuery(filter);
-    if (!parsedFilter.op) {
-        return null;
-    }
-    ;
+    if (!parsedFilter.op) {return null;};
     let condObj;
     try {
         condObj = CONDITIONS_FUNCTIONS[parsedFilter.op](parsedFilter);
@@ -22,10 +46,7 @@ function getFilterObj(filter) {
             throw e;
         }
     }
-    if (!condObj) {
-        return null;
-    }
-    ;
+    if (!condObj) { return null;} ;
     return condObj;
 }
 
@@ -98,10 +119,11 @@ const CONDITIONS_FUNCTIONS = { // search method base on conditions list value
         return {'cond': ` and ${filter.cell} between :a and :b `, arg: [filter.v1]}
     }
     , 'notBetween'(filter) {
-        return {'cond': ` and ${filter.cell} not between :a and :b  `, arg: [filter.v1]}
+        return {'cond': ` and ${filter.cell} not between :a and :b `, arg: [filter.v1]}
     }
 };
 
-exports.getFilterObj = getFilterObj;
+exports.getFilterObjAsPar = getFilterObjAsPar;
 exports.getFilterJSON = getFilterJSON;
 exports.getSourceObj = getSourceObj;
+exports.getFilterObjAsBody = getFilterObjAsBody;

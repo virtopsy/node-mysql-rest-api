@@ -1,18 +1,33 @@
+
+class FilterBindValues {
+    constructor(condition, variable ) {
+        this.cond = '';
+        this.arg = [];
+        if (condition){
+            this.cond = condition;
+        }
+        if (variable) {
+                this.arg = this.arg.concat(variable);
+        }
+    }
+}
+
 const queryStringParser = require('./query_string_parser.js');
 
-
-function getFilterObjAsBody(filter) {
-    if (!filter) {return null;};
-    let resultCondObj;
-    let condObj;
-    for (let i=0; i<filter.length; i++) {
-        let parsedFilter = filter[i];
+   function  getFilterObjAsBody(filter) {
+// console.log('filter-parser.getFilterObjAsBody filter->' + JSON.stringify(filter));
+    if (!filter || filter.length === 0) {return null;};
+    let resultCondObj  = new FilterBindValues;
+    let condObj = new FilterBindValues;
+    for (let i=0; i < filter.length; i++) {
+        console.log('filter-parser.getFilterObjAsBody i->' + i)
+        let parsedFilter =  filter[i];
         if (parsedFilter.op) {
             condObj = null;
             try {
                 condObj = CONDITIONS_FUNCTIONS[parsedFilter.op](parsedFilter);
             } catch (e) {
-// console.log('e.name ->' + e.name );
+// console.log('filter-parser.getFilterObjAsBody e.name ->' + e.name  + ' - ' + e.message);
                 if (e.name == 'TypeError') {
                     e.message = ('Не реализован метод ' + parsedFilter.op)
                     throw e;
@@ -21,15 +36,16 @@ function getFilterObjAsBody(filter) {
                 }
             }
             if (condObj) {
-                resultCondObj.cond += condObj;
-                resultCondObj.arg.push(condObj.arg);
+                resultCondObj.cond += condObj.cond;
+                resultCondObj.arg = resultCondObj.arg.concat(condObj.arg);
             } ;
         };
     }
+console.log('filter-parser.getFilterObjAsBody resultCondObj ->' + resultCondObj.cond);
     return resultCondObj;
 }
 
-function getFilterObjAsPar(filter) {
+   function getFilterObjAsPar(filter) {
     if (!filter) {return null;};
 
     let parsedFilter = queryStringParser.fromQuery(filter);
@@ -50,11 +66,11 @@ function getFilterObjAsPar(filter) {
     return condObj;
 }
 
-function getFilterJSON(filter) {
+   function getFilterJSON(filter) {
     return JSON.stringify(getFilterObj(filter));
 }
 
-function getSourceObj(objNmae) {
+   function getSourceObj(objNmae) {
     return objNmae;
 
     let result;
@@ -85,41 +101,41 @@ const SOURCENAME_FUNCTION = {
 const CONDITIONS_FUNCTIONS = { // search method base on conditions list value
     // filter.type
     'empty'(filter) {
-        return {'cond': ` and ${filter.cell} is null `, arg: []};
+        return new FilterBindValues(` and ${filter.cell} is null `, []);
     }
     , 'notEmpty'(filter) {
-        return {'cond': ` and ${filter.cell} is not null `, arg: []};
+        return new FilterBindValues(` and ${filter.cell} is not null `, []);
     }
     , 'equal'(filter) {
-        console.log('filter.v1->' + filter.v1);
-        return {'cond': ` and ${filter.cell} = :a `, arg: [filter.v1]}
+        console.log('filter.v1->' + [filter.v1]);
+        return new FilterBindValues(` and ${filter.cell} = :a `, [filter.v1]);
     }
     , 'notEqual'(filter) {
-        return {'cond': ` and ${filter.cell} != :a `, arg: [filter.v1]}
+        return new FilterBindValues(` and ${filter.cell} != :a `, [filter.v1]);
     }
     , 'lt'(filter) {
-        return {'cond': ` and ${filter.cell} < :a `, arg: [filter.v1]}
+        return new FilterBindValues(` and ${filter.cell} < :a `, [filter.v1]);
     }
     , 'gt'(filter) {
-        return {'cond': ` and ${filter.cell} > :a `, arg: [filter.v1]}
+        return new FilterBindValues(` and ${filter.cell} > :a `, [filter.v1]);
     }
     , 'lte'(filter) {
-        return {'cond': ` and ${filter.cell} <= :a `, arg: [filter.v1]}
+        return new FilterBindValues(` and ${filter.cell} <= :a `, [filter.v1]);
     }
     , 'gte'(filter) {
-        return {'cond': ` and ${filter.cell} >= :a `, arg: [filter.v1]}
+        return new FilterBindValues(` and ${filter.cell} >= :a `, [filter.v1]);
     }
     , 'like'(filter) {
-        return {'cond': ` and ${filter.cell} like :a `, arg: [filter.v1]}
+        return new FilterBindValues(` and ${filter.cell} like :a `, [filter.v1]);
     }
     , 'notLike'(filter) {
-        return {'cond': ` and ${filter.cell} not like :a `, arg: [filter.v1]}
+        return new FilterBindValues(` and ${filter.cell} not like :a `, [filter.v1]);
     }
     , 'between'(filter) {
-        return {'cond': ` and ${filter.cell} between :a and :b `, arg: [filter.v1]}
+        return new FilterBindValues(` and ${filter.cell} between :a and :b `, [filter.v1, filter.v2]);
     }
     , 'notBetween'(filter) {
-        return {'cond': ` and ${filter.cell} not between :a and :b `, arg: [filter.v1]}
+        return new FilterBindValues(` and ${filter.cell} not between :a and :b `, [filter.v1, filter.v2]);
     }
 };
 

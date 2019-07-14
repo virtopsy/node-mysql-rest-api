@@ -77,12 +77,12 @@ class TableDML {
     }
 
     static getAllSqlAsPut(req) {
-        console.log('table-dml.getAllSqlAsPut body->' + JSON.stringify(req.body));
+// console.log('table-dml.getAllSqlAsPut body->' + JSON.stringify(req.body));
         const pageSize = req.body.pageSize || 100;
         const pageNunber = req.body.pageNumber || 0;
         // sorting
         let sortCond = '';
-        if (req.query.sortOrder) {
+        if (req.body.sortOrder) {
             const sortOrder = (req.body.sortOrder || '').split(',');
             for (let i = 0; i < sortOrder.length; i++) {
                 sortCond += ', ' + sortOrder[i].substring(1) + ' ' + ((sortOrder[i].charAt(0) === '-') ? 'asc' : 'desc' )
@@ -98,10 +98,14 @@ class TableDML {
             fields += ',' + fieldsPar[i] + ' "' + fieldsPar[i] + '" ';
         }
         let sql = 'SELECT ' + fields.substring(1) + ' FROM ' + objName + '  WHERE 1 = 1 ';
-        let filter = FilterParser.getFilterObjAsBody(req.body.filter || '');
-        if (filter) {
-            sql += filter.cond;
-            binds = binds.concat(filter.arg);
+        if (!req.body.filter || !(req.body.filter.length === 0)) {
+// console.log(' table-dml.getAllSqlAsPut req.body.filter->' + JSON.stringify(req.body.filter));
+            let filter = FilterParser.getFilterObjAsBody(req.body.filter);
+// console.log(' table-dml.getAllSqlAsPut filter->' + filter.cond);
+            if (filter){
+                sql += filter.cond;
+                binds = binds.concat(filter.arg);
+            }
         }
         // order by ${sortOrder}
         sql += sortCond + ' OFFSET :offset ROWS FETCH NEXT :maxnumrows ROWS ONLY';

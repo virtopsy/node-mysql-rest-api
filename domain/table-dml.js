@@ -77,12 +77,12 @@ class TableDML {
     }
 
     static getAllSqlAsPut(req) {
-        console.log('table-dml.getAllSqlAsPut body->' + JSON.stringify(req.body));
+// console.log('table-dml.getAllSqlAsPut body->' + JSON.stringify(req.body));
         const pageSize = req.body.pageSize || 100;
         const pageNunber = req.body.pageNumber || 0;
         // sorting
         let sortCond = '';
-        if (req.query.sortOrder) {
+        if (req.body.sortOrder) {
             const sortOrder = (req.body.sortOrder || '').split(',');
             for (let i = 0; i < sortOrder.length; i++) {
                 sortCond += ', ' + sortOrder[i].substring(1) + ' ' + ((sortOrder[i].charAt(0) === '-') ? 'asc' : 'desc' )
@@ -98,10 +98,14 @@ class TableDML {
             fields += ',' + fieldsPar[i] + ' "' + fieldsPar[i] + '" ';
         }
         let sql = 'SELECT ' + fields.substring(1) + ' FROM ' + objName + '  WHERE 1 = 1 ';
-        let filter = FilterParser.getFilterObjAsBody(req.body.filter || '');
-        if (filter) {
-            sql += filter.cond;
-            binds = binds.concat(filter.arg);
+        if (!req.body.filter || !(req.body.filter.length === 0)) {
+// console.log(' table-dml.getAllSqlAsPut req.body.filter->' + JSON.stringify(req.body.filter));
+            let filter = FilterParser.getFilterObjAsBody(req.body.filter);
+// console.log(' table-dml.getAllSqlAsPut filter->' + filter.cond);
+            if (filter){
+                sql += filter.cond;
+                binds = binds.concat(filter.arg);
+            }
         }
         // order by ${sortOrder}
         sql += sortCond + ' OFFSET :offset ROWS FETCH NEXT :maxnumrows ROWS ONLY';
@@ -147,15 +151,16 @@ console.log('table-dml.getAllSQL filter->' + req.query.filter);
     static getCellsConf (req) {
         let binds = [req.query.objName];
         // binds = binds.concat(dataObjName);
-        let sql = `select  lower(tc.COLUMN_NAME)    as "name"
+        let sql = `select  lower(t.COLUMN_NAME)    as "name"
        ,null              as "desc"
-       ,lower(tc.DATA_TYPE)      as "datatype"
-       ,tc.DATA_LENGTH    as "dataLength"   
-       ,tc.DATA_PRECISION as "dataPrecision"
-       ,tc.DATA_SCALE     as "dataScale"    
-       ,tc.DATA_DEFAULT   as "dataDefault"  
-  from all_tab_cols tc
-        where tc.TABLE_NAME = upper(:dataObjName)`
+       ,lower(t.DATA_TYPE)      as "datatype"
+       ,t.DATA_LENGTH    as "dataLength"   
+       ,t.DATA_PRECISION as "dataPrecision"
+       ,t.DATA_SCALE     as "dataScale"    
+       ,t.DATA_DEFAULT   as "dataDefault"  
+  from all_tab_cols t
+        where t.TABLE_NAME = upper(:dataObjName)
+          and t.OWNER = 'SR_BANK' `
         return {sql: sql, binds: binds};
     }
 
@@ -164,12 +169,14 @@ console.log('table-dml.getAllSQL filter->' + req.query.filter);
         let sql = ` SELECT lower(cols.table_name) as "name"
       ,lower(cols.column_name) as "primaryKey"
       ,(select lower(o.OBJECT_NAME)
-          from obj o
+          from all_OBJECTS o
          where o.OBJECT_TYPE = 'SEQUENCE'
-           and o.OBJECT_NAME = upper(cols.table_name ||'_SEQ')) as  "seqName"
+          and o.OWNER = 'SR_BANK' 
+          and o.OBJECT_NAME = upper(cols.table_name ||'_SEQ')) as  "seqName"
   FROM all_constraints cons
       ,all_cons_columns cols
  WHERE cols.table_name = upper(:dataObjName)
+   and cons.owner = 'SR_BANK'
    AND cons.constraint_type = 'P'
    AND cons.constraint_name = cols.constraint_name
    AND cons.owner = cols.owner
